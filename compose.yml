@@ -1,0 +1,63 @@
+# https://github.com/grafana/mimir/blob/main/docs/sources/mimir/get-started/play-with-grafana-mimir/docker-compose.yml
+version: '3.8'
+services:
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    hostname: grafana
+    restart: unless-stopped
+    networks:
+      - grafananet
+    volumes:
+      - grafana-data:/var/lib/grafana
+    ports:
+      - '3000:3000'
+
+  mimir:
+    image: grafana/mimir
+    container_name: mimir
+    hostname: mimir
+    restart: unless-stopped
+    volumes:
+      - ./config/mimir-local.yaml:/etc/mimir/config.yaml
+      - mimir-data:/data
+      - ./config/alertmanager-fallback-config.yaml:/etc/alertmanager-fallback-config.yaml
+    networks:
+      - grafananet
+    ports:
+      - '9009:9009'
+    command: --config.file=/etc/mimir/config.yaml
+
+  agent:
+    image: grafana/agent
+    container_name: agent
+    hostname: agent
+    restart: unless-stopped
+    networks:
+      - grafananet
+    volumes:
+      - ./config/agent.yaml:/etc/agent/agent.yaml
+      - ./config/agent/wal:/etc/agent/data
+
+  # replacement for AWS S3 locally
+  minio:
+    image: minio/minio
+    entrypoint: [""]
+    command: ["sh", "-c", "mkdir -p /data/mimir && minio server --quiet /data"]
+    environment:
+      - MINIO_ROOT_USER=mimir
+      - MINIO_ROOT_PASSWORD=supersecret
+    volumes:
+      - minio-data:/data
+    networks:
+      - grafananet 
+
+volumes:
+  mimir-data:
+  grafana-data:
+  minio-data:
+
+networks:
+  grafananet:
+    name: grafananet
+    driver: bridge
