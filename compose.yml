@@ -10,8 +10,24 @@ services:
       - grafananet
     volumes:
       - grafana-data:/var/lib/grafana
+      - ./config/grafana.ini:/etc/grafana/grafana.ini
+    depends_on:
+      - db
     ports:
       - '3000:3000'
+
+  db:
+    image: postgres
+    container_name: postgres
+    hostname: postgres
+    restart: unless-stopped
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: changeit
+      POSTGRES_DB: grafana
+    ports:
+      - '5432:5432'
 
   mimir:
     image: grafana/mimir
@@ -42,6 +58,7 @@ services:
   # replacement for AWS S3 locally
   minio:
     image: minio/minio
+    container_name: minio
     entrypoint: [""]
     command: ["sh", "-c", "mkdir -p /data/mimir && minio server --quiet /data"]
     environment:

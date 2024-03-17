@@ -1,0 +1,3 @@
+- DB backend - https://grafana.com/docs/grafana/latest/setup-grafana/set-up-for-high-availability/
+- Custom image - https://grafana.com/docs/grafana/latest/setup-grafana/configure-docker/
+    - https://grafana.com/docs/grafana/latest/setup-grafana/configure-docker/
