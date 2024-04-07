@@ -12,7 +12,7 @@ metadata:
     app.kubernetes.io/managed-by: oc
     app.openshift.io/runtime: Go
 spec:
-  replicas: 1 # Number of Grafana pods
+  replicas: 2
   selector:
     matchLabels:
       app: grafana
@@ -29,6 +29,13 @@ spec:
           image: docker.io/grafana/grafana-enterprise:latest # Use a specific version if needed
           ports:
             - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
           volumeMounts:
             - name: grafana-storage
               mountPath: /var/lib/grafana
