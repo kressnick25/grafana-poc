@@ -1,9 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: grafana
+  name: grafana-dev
   labels:
     app: grafana
+    component: frontend
+    env: dev
+    app.kubernetes.io/part-of: grafana-dev
+    app.kubernetes.io/instance: grafana-enterprise
+    app.kubernetes.io/version: 10.4.1
+    app.kubernetes.io/managed-by: oc
+    app.openshift.io/runtime: Go
 spec:
   replicas: 1 # Number of Grafana pods
   selector:
@@ -12,7 +19,10 @@ spec:
   template:
     metadata:
       labels:
+        deployment: grafana-dev
         app: grafana
+        component: frontend
+        env: dev
     spec:
       containers:
         - name: grafana
@@ -25,5 +35,37 @@ spec:
       volumes:
         - name: grafana-storage
           persistentVolumeClaim:
-            claimName: grafana-pvc  
+            claimName: grafana-pvc-dev
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: grafana-pvc-dev
+spec:
+  accessModes:
+    - ReadWriteOnce # Adjust based on storage provider
+  storageClassName: standard  # Replace if not using the default 
+  resources:
+    requests:
+      storage: 2Gi 
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-dev
+  labels:
+    app: grafana
+    env: dev
+spec:
+  selector:
+    app: grafana 
+    component: frontend
+    env: dev
+  ports:
+    - protocol: TCP
+      port: 80 
+      targetPort: 3000
+  type: ClusterIP  
 
