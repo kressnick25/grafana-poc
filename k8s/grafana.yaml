@@ -29,6 +29,7 @@ spec:
           image: docker.io/grafana/grafana-enterprise:latest # Use a specific version if needed
           ports:
             - containerPort: 3000
+
           resources:
             requests:
               cpu: 50m
@@ -36,9 +37,24 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
+
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
           volumeMounts:
             - name: grafana-storage
               mountPath: /var/lib/grafana
+
       volumes:
         - name: grafana-storage
           persistentVolumeClaim:
