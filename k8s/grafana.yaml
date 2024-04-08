@@ -27,6 +27,7 @@ spec:
       containers:
         - name: grafana
           image: docker.io/grafana/grafana-enterprise:latest # Use a specific version if needed
+          imagePullPolicy: ifNotPresent
           ports:
             - containerPort: 3000
 
